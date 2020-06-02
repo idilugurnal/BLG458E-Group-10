@@ -19,9 +19,9 @@ stringToNinja input = ninja
     where 
         features = words input
         ninja :: Ninja
-        ninja = Ninja {name = features !! 0, country = features !! 1, status = features !! 2, exam1 = read (features !! 3) :: Float,
-                        exam2 = read (features !! 4) :: Float, ability1 = features !! 5, ability2 = features !! 6, 
-                        r = read (features !! 7) :: Int}
+        ninja = Ninja {name = features !! 0, country = features !! 1, status = "junior", exam1 = read (features !! 2) :: Float,
+                        exam2 = read (features !! 3) :: Float, ability1 = features !! 4, ability2 = features !! 5, 
+                        r = 0}
 
 parseList :: [String] -> [Ninja]
 parseList input  = case input of 
@@ -31,37 +31,34 @@ parseList input  = case input of
 
 distributeNinjas :: String -> [Ninja] -> [Ninja]
 distributeNinjas place ninjaList 
-    | ninjaList == [] = []
+    | null ninjaList = []
     | country (head ninjaList) == place = (head ninjaList) : distributeNinjas place (tail ninjaList)
     | otherwise = distributeNinjas place (tail ninjaList)
     
 
-createNinjaCatalogue :: FilePath -> NinjaCatalogue
-createNinjaCatalogue file = catalogue
+
+
+createNinjaCatalogue :: [String] -> NinjaCatalogue
+createNinjaCatalogue ninjas = catalogue
     where
-        ninjaList = parseList ninjaLines
+        ninjaList = parseList ninjas
         catalogue = NinjaCatalogue {fire = distributeNinjas "Fire" ninjaList , 
                                     lightning = distributeNinjas "Lightning" ninjaList , 
                                     water = distributeNinjas "Water" ninjaList , 
                                     wind = distributeNinjas "Wind" ninjaList , 
                                     earth = distributeNinjas "Earth" ninjaList
-                                    } 
+                                    }
 
-
-readCustomFile :: IO [String]
-readCustomFile = do
-
-    ninjas <- readFile "csereport.txt"
-    return (read ninjas :: [String])
-
-
-
---readLines :: FilePath -> IO [String]
---readLines = fmap lines . readFile
+readLines :: FilePath -> IO [String]
+readLines = fmap lines . readFile
 
 
 main :: IO ()
 main = do
-    s <- readFile file
-    print(lines s)
-    createNinjaCatalogue 
+    --args <- getArgs
+    --let fileName = head args
+    handle <- openFile "csereport.txt" ReadMode
+    contents <- hGetContents handle
+    let lineContent = lines contents
+    let catalogue = createNinjaCatalogue lineContent
+    print(water catalogue)
