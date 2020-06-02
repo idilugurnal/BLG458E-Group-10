@@ -35,27 +35,33 @@ distributeNinjas place ninjaList
     | country (head ninjaList) == place = (head ninjaList) : distributeNinjas place (tail ninjaList)
     | otherwise = distributeNinjas place (tail ninjaList)
     
-#readLines :: FilePath -> IO [String]
-#readLines = fmap lines . readFile
-
-getLine :: IO String
-getLine = do line <- getLine
-            return(read line :: String)
 
 createNinjaCatalogue :: FilePath -> NinjaCatalogue
 createNinjaCatalogue file = catalogue
     where
-        lines = readLines file 
-        ninjaLines = map show lines
         ninjaList = parseList ninjaLines
         catalogue = NinjaCatalogue {fire = distributeNinjas "Fire" ninjaList , 
                                     lightning = distributeNinjas "Lightning" ninjaList , 
                                     water = distributeNinjas "Water" ninjaList , 
                                     wind = distributeNinjas "Wind" ninjaList , 
                                     earth = distributeNinjas "Earth" ninjaList
-                                    }
+                                    } 
+
+
+readCustomFile :: IO [String]
+readCustomFile = do
+
+    ninjas <- readFile "csereport.txt"
+    return (read ninjas :: [String])
+
+
+
+--readLines :: FilePath -> IO [String]
+--readLines = fmap lines . readFile
+
 
 main :: IO ()
 main = do
-    finalCatalogue <- createNinjaCatalogue "csereport.txt"
-    print(finalCatalogue)
+    s <- readFile file
+    print(lines s)
+    createNinjaCatalogue 
