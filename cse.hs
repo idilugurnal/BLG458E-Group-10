@@ -167,6 +167,12 @@ checkJourneyman y@(x:xs)
     | isJourneyMan x = True
     | otherwise = checkJourneyman xs
 
+
+getStatus :: Int -> String
+getStatus round 
+    | round == 3 = "Journeyman"
+    | otherwise = "Junior"
+
 isName :: String -> String -> Bool
 isName currentName ninjaName 
     |  currentName == ninjaName = True
@@ -178,21 +184,77 @@ filterNinja ninjaName y@(x:xs)
     | isName (name x) ninjaName = x : filterNinja ninjaName xs
     | otherwise = filterNinja ninjaName xs
 
-updateCatalogue :: NinjaCatalogue -> Ninja -> NinjaCatalogue
-updateCatalogue catalogue ninja = newCatalogue
-    where newCatalogue = NinjaCatalogue {fire = [] , 
-                                    lightning = [] , 
-                                    water = [] , 
-                                    wind = [], 
-                                    earth = []
-                                    }
+getUpdatedCountryList :: Ninja -> [Ninja] -> [Ninja]
+getUpdatedCountryList ninja [] = []
+getUpdatedCountryList ninja y@(x:xs) 
+    | areEqualNinjas x ninja = getUpdatedCountryList ninja xs
+    | otherwise = x : getUpdatedCountryList ninja xs
+        where
+            areEqualNinjas :: Ninja -> Ninja -> Bool
+            areEqualNinjas first second 
+                | (country first == country second) && (name first == name second) = True
+                | otherwise = False
 
-makeRoundBetweenNinjas :: NinjaCatalogue -> Ninja -> Ninja -> Ninja
+updateCatalogue :: NinjaCatalogue -> Ninja -> NinjaCatalogue
+updateCatalogue catalogue ninja = case (country ninja) of
+    'e' -> NinjaCatalogue {fire = fire catalogue , 
+                            lightning = lightning catalogue , 
+                            water = water catalogue , 
+                            wind = wind catalogue, 
+                            earth = ninja : (getUpdatedCountryList ninja (earth catalogue))
+                            }
+
+    'f' -> NinjaCatalogue {fire = ninja : (getUpdatedCountryList ninja (fire catalogue)), 
+                            lightning = lightning catalogue , 
+                            water = water catalogue , 
+                            wind = wind catalogue, 
+                            earth = earth catalogue
+                            }
+    'w' -> NinjaCatalogue {fire = fire catalogue , 
+                            lightning = lightning catalogue , 
+                            water = ninja : (getUpdatedCountryList ninja (water catalogue)), 
+                            wind = wind catalogue, 
+                            earth = earth catalogue
+                            }
+    'n' -> NinjaCatalogue {fire = fire catalogue , 
+                            lightning = lightning catalogue , 
+                            water = water catalogue , 
+                            wind = ninja : (getUpdatedCountryList ninja (wind catalogue)), 
+                            earth = earth catalogue
+                            }
+    'l' -> NinjaCatalogue {fire = fire catalogue , 
+                            lightning = ninja : (getUpdatedCountryList ninja (lightning catalogue)) , 
+                            water = water catalogue , 
+                            wind = wind catalogue, 
+                            earth = earth catalogue
+                            }
+
+makeRoundBetweenNinjas :: NinjaCatalogue -> Ninja -> Ninja -> (Ninja , NinjaCatalogue)
 makeRoundBetweenNinjas catalogue ninja1 ninja2 
-    | (score ninja1 > score ninja2) || ((score ninja1 == score ninja2) && 
-    ((abilityImpact (ability1 ninja1)) + (abilityImpact (ability2 ninja1))) > (( abilityImpact (ability1 ninja2)) + (abilityImpact (ability2 ninja2))) )
-     = ninja1
-    | otherwise = ninja2
+    | (score ninja1 > score ninja2) || ((score ninja1 == score ninja2) && ((abilityImpact (ability1 ninja1)) + (abilityImpact (ability2 ninja1))) > (( abilityImpact (ability1 ninja2)) + (abilityImpact (ability2 ninja2))) )
+     = (winnerNinja1 , updateCatalogue catalogue winnerNinja1)
+    | otherwise = (winnerNinja2, updateCatalogue catalogue winnerNinja2)
+        where
+            winnerNinja1 :: Ninja
+            winnerNinja1 = Ninja {name =  name ninja1, 
+                        country = country ninja1,
+                        status = getStatus ((r ninja1) + 1), 
+                        exam1 = exam1 ninja1,
+                        exam2 = exam2 ninja1, 
+                        ability1 = ability1 ninja1,
+                        ability2 = ability2 ninja1, 
+                        r = ((r ninja1) + 1),
+                        score = ((score ninja1) + 10)}
+            winnerNinja2 :: Ninja
+            winnerNinja2 = Ninja {name =  name ninja2, 
+                        country = country ninja2,
+                        status = getStatus ((r ninja2) + 1), 
+                        exam1 = exam1 ninja2,
+                        exam2 = exam2 ninja2, 
+                        ability1 = ability1 ninja2,
+                        ability2 = ability2 ninja2, 
+                        r = ((r ninja2) + 1),
+                        score = ((score ninja2) + 10)}
 
 getCountryNinjas :: NinjaCatalogue -> String -> [Ninja]
 getCountryNinjas catalogue code = case code of
@@ -201,6 +263,12 @@ getCountryNinjas catalogue code = case code of
         "l" -> lightning catalogue
         "e" -> earth catalogue
         "f" -> fire catalogue
+
+getEndOfRoundMessage :: Ninja -> String
+getEndOfRoundMessage winner = message 
+    where
+        message :: String
+        message = "Winner: " ++ (name winner) ++ ", Round: " ++ (show $ r winner) ++ ", Status: " ++ (status winner) ++ "\n"
 
 rootPrompt :: NinjaCatalogue  -> IO ()
 rootPrompt catalogue  = do
@@ -280,10 +348,10 @@ rootPrompt catalogue  = do
                                                 -- Checks for Ninja 1 and Ninja 2 are complete
                                                 putStrLn " Ninjas are going in a fight... \n "
                                                 let ninja1 = filter (\a -> (name a) == name1) (getCountryNinjas catalogue country1)
-                                                let ninja2 = filter (\a -> (name a) == name1) (getCountryNinjas catalogue country2)
-                                                let winner = makeRoundBetweenNinjas catalogue (head ninja1) (head ninja2)
-                                                print("Winner:")
-                                                --print(winner)
+                                                let ninja2 = filter (\a -> (name a) == name2) (getCountryNinjas catalogue country2)
+                                                let winner  = fst (makeRoundBetweenNinjas catalogue (head ninja1) (head ninja2))
+                                                let newCatalogue  = snd (makeRoundBetweenNinjas catalogue (head ninja1) (head ninja2))
+                                                putStrLn $ getEndOfRoundMessage winner
                                                 return() 
                                         else do 
                                         putStrLn "There is already a Journeyman in the country of the second Ninja. Pleasse try again!\n"
