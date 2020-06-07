@@ -166,11 +166,35 @@ rootPrompt catalogue  = do
     case s of
         "a" -> ninjasOfCountry catalogue ""
         "b" -> viewAllCountries catalogue
+        --"c" -> rootPromt . deneme catalogue
         "e" -> return ()
     
     if s == "e"
         then return ()
         else do rootPrompt catalogue
+
+makeRaundBetweenNinjas :: NinjaCatalogue -> String -> IO NinjaCatalogue
+makeRaundBetweenNinjas catalogue response = do
+    if response /= "" && response /= "c_error" && response /= "n_error"
+        then return catalogue
+        else do 
+                
+    return()
+
+chooseNinja :: NinjaCatalogue -> String -> IO String
+chooseNinja catalogue ninjaNum = do
+    let countries = ["w", "f", "l", "n", "e"]
+    putStrLn $ "Enter the name of the" ++ ninjaNum ++ "ninja:"
+    name <- getLine
+    if elem  
+    putStrLn $ "Enter the coutry code of" ++ ninjaNum ++ "ninja:"
+    country <- getLine
+    if elem country countries 
+        then return 
+    
+
+findNinja :: IO String -> IO String -> IO String
+findNinja name country = name ++ country
 
  
 
