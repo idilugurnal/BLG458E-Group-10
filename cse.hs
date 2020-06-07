@@ -120,15 +120,15 @@ viewNinjaInfo n =
 
 -- TODO: ORDERING (SCORE DESCENDING, ROUND ASCENDING)
 -- ORDERING SHOULD BE DONE AFTER BATTLES AND FIRST DISTRIBUTION
-viewCountry :: NinjaCatalogue -> Char -> String
+viewCountry :: NinjaCatalogue -> String -> String
 viewCountry catalogue countryCode = 
     unlines $ map viewNinjaInfo (
-        case toLower(countryCode) of
-            'e' -> quickSort $ earth catalogue
-            'l' -> quickSort $ lightning catalogue 
-            'w' -> quickSort $ water catalogue
-            'n' -> quickSort $ wind catalogue
-            'f' -> quickSort $ fire catalogue
+        case countryCode of
+            "e" -> quickSort $ earth catalogue
+            "l" -> quickSort $ lightning catalogue 
+            "w" -> quickSort $ water catalogue
+            "n" -> quickSort $ wind catalogue
+            "f" -> quickSort $ fire catalogue
     )
 
 
@@ -140,12 +140,29 @@ viewAllCountries catalogue = ninjaList
             quickSort ( fire catalogue ++ earth catalogue ++ lightning catalogue ++ water catalogue ++ wind catalogue))
 
 
-chooseCountry :: IO Char
+chooseCountry :: IO String
 chooseCountry = do
     putStrLn "Enter the country code: "
     line <- getLine
-    let ch = read line :: Char
-    return (ch)
+    --return (read line :: String)
+    return "dsdsf"
+
+
+ninjasOfCountry :: NinjaCatalogue -> String -> IO ()
+ninjasOfCountry catalogue response = do
+
+    if response /= ""
+        then putStrLn response
+        else do putStrLn "Enter country code: "
+                code <- getLine
+                case code of 
+                    "e" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( earth catalogue))))
+                    "l" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( lightning catalogue))))
+                    "w" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( water catalogue))))
+                    "n" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( wind catalogue))))
+                    "f" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( fire catalogue))))
+                    _ -> rootPrompt catalogue ""
+    return()
 
 
 
@@ -161,7 +178,7 @@ rootPrompt catalogue output  = do
     putStrLn ""
 
     case s of
-        "a" -> rootPrompt catalogue (viewCountry catalogue chooseCountry)
+        "a" -> ninjasOfCountry catalogue ""
         "b" -> rootPrompt catalogue (viewAllCountries catalogue)
         "e" -> return ()
         _ -> rootPrompt catalogue ""
