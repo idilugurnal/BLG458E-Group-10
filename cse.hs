@@ -167,6 +167,33 @@ checkJourneyman y@(x:xs)
     | isJourneyMan x = True
     | otherwise = checkJourneyman xs
 
+isName :: String -> String -> Bool
+isName currentName ninjaName 
+    |  currentName == ninjaName = True
+    | otherwise = False
+
+filterNinja :: String -> [Ninja] -> [Ninja]
+filterNinja ninjaName [] = []
+filterNinja ninjaName y@(x:xs) 
+    | isName (name x) ninjaName = x : filterNinja ninjaName xs
+    | otherwise = filterNinja ninjaName xs
+
+updateCatalogue :: NinjaCatalogue -> Ninja -> NinjaCatalogue
+updateCatalogue catalogue ninja = newCatalogue
+    where newCatalogue = NinjaCatalogue {fire = [] , 
+                                    lightning = [] , 
+                                    water = [] , 
+                                    wind = [], 
+                                    earth = []
+                                    }
+
+makeRoundBetweenNinjas :: NinjaCatalogue -> Ninja -> Ninja -> Ninja
+makeRoundBetweenNinjas catalogue ninja1 ninja2 
+    | (score ninja1 > score ninja2) || ((score ninja1 == score ninja2) && 
+    ((abilityImpact (ability1 ninja1)) + (abilityImpact (ability2 ninja1))) > (( abilityImpact (ability1 ninja2)) + (abilityImpact (ability2 ninja2))) )
+     = ninja1
+    | otherwise = ninja2
+
 
 rootPrompt :: NinjaCatalogue  -> IO ()
 rootPrompt catalogue  = do
@@ -217,7 +244,7 @@ rootPrompt catalogue  = do
                         putStrLn "Enter the name of the second Ninja: "
                         name2 <- getLine
                         -- Check if name2 is valid
-                        if elem name1 ninjaNames
+                        if elem name2 ninjaNames
                             then do 
                             putStrLn "Enter the country code of the first Ninja: "
                             country2 <- getLine
@@ -245,6 +272,13 @@ rootPrompt catalogue  = do
                                                 else do
                                                 -- Checks for Ninja 1 and Ninja 2 are complete
                                                 putStrLn " Ninjas are going in a fight... \n "
+                                                let ninja1 = filter (\a -> (name a) == name1) (fire catalogue)
+                                                let ninja2 = filter (\a -> (name a) == name1) (lightning catalogue)
+                                                let winner = makeRoundBetweenNinjas catalogue (head ninja1) (head ninja2)
+                                                print("Winner:")
+                                                print(winner)
+                                                rootPrompt catalogue
+                                                
                                         
                                         else do 
                                         putStrLn "There is already a Journeyman in the country of the second Ninja. Pleasse try again!\n"
@@ -283,12 +317,7 @@ rootPrompt catalogue  = do
                 else do 
                 putStrLn "" 
         
-    if (s == "c") -- If checks are complete
-        then do
-        putStrLn ""
-        else do
-        putStrLn ""
-    if s == "e"
+    if (s == "e") && (s/= "c")
         then return ()
         else do 
         rootPrompt catalogue
