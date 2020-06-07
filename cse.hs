@@ -114,11 +114,6 @@ createNinjaCatalogue ninjas = catalogue
                                     }
 
 
--- Unused???
-readLines :: FilePath -> IO [String]
-readLines = fmap lines . readFile
-
-
 viewNinjaInfo :: Ninja -> String
 viewNinjaInfo n = 
     (name n) ++ ", Score: " ++ (show $ score n) ++ ", Status: " ++ (status n) ++ ", Round: " ++ (show $ r n)
