@@ -343,7 +343,7 @@ rootPrompt catalogue  = do
                                             if ((country1 == country2) && (name1 == name2))
                                                 then do 
                                                 putStrLn "The ninjas selected are the same ninjas. Pleasse try again!\n"
-                                                return() 
+                                                rootPrompt catalogue
                                                 else do
                                                 -- Checks for Ninja 1 and Ninja 2 are complete
                                                 putStrLn " Ninjas are going in a fight... \n "
@@ -352,32 +352,32 @@ rootPrompt catalogue  = do
                                                 let winner  = fst (makeRoundBetweenNinjas catalogue (head ninja1) (head ninja2))
                                                 let newCatalogue  = snd (makeRoundBetweenNinjas catalogue (head ninja1) (head ninja2))
                                                 putStrLn $ getEndOfRoundMessage winner
-                                                return() 
+                                                rootPrompt newCatalogue
                                         else do 
                                         putStrLn "There is already a Journeyman in the country of the second Ninja. Pleasse try again!\n"
-                                        return() 
+                                        rootPrompt catalogue
                                     else do
                                     putStrLn "Ninja 2 not in this country\n"
-                                    return()
+                                    rootPrompt catalogue
                                 else do
                                 putStrLn "Country entered for the second ninja does not exist. Please try again!\n"
-                                return()
+                                rootPrompt catalogue
 
                             else do
                             putStrLn "Wrong name is given for the second Ninja. Please try again!\n"
-                            return()
+                            rootPrompt catalogue
                         else do
                         putStrLn "There is already a Journeyman in the country of the first Ninja. Pleasse try again!\n"
-                        return() 
+                        rootPrompt catalogue
                     else do
                     putStrLn "Ninja 1 not in this country\n"
-                    return()
+                    rootPrompt catalogue
                 else do 
                 putStrLn "Country entered for the first ninja does not exist. Please try again!\n"
-                return()
+                rootPrompt catalogue
             else do
             putStrLn "Wrong name is given for the first Ninja. Please try again!\n"
-            return()
+            rootPrompt catalogue
         -- C
         else 
         if (s == "a")
@@ -392,7 +392,10 @@ rootPrompt catalogue  = do
     if (s == "e") 
         then return ()
         else do 
-        rootPrompt catalogue
+        if(s /= "c")
+            then rootPrompt catalogue
+            else do
+                return()
 
  
 
