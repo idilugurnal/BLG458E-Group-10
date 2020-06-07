@@ -286,6 +286,16 @@ rootPrompt catalogue  = do
     s <- getLine
     putStrLn $ "You typed: " ++ s
     putStrLn ""
+
+    if (s == "a")
+        then do 
+        ninjasOfCountry catalogue ""
+        else do putStrLn "" 
+    
+    if (s == "b")
+        then do
+        viewAllCountries catalogue
+        else do putStrLn "" 
     
     if (s == "c")
         then do
@@ -361,7 +371,6 @@ rootPrompt catalogue  = do
                                 else do
                                 putStrLn "Country entered for the second ninja does not exist. Please try again!\n"
                                 rootPrompt catalogue
-
                             else do
                             putStrLn "Wrong name is given for the second Ninja. Please try again!\n"
                             rootPrompt catalogue
@@ -378,25 +387,68 @@ rootPrompt catalogue  = do
             putStrLn "Wrong name is given for the first Ninja. Please try again!\n"
             rootPrompt catalogue
         -- C
-        else 
-        if (s == "a")
-            then ninjasOfCountry catalogue ""
-            else do 
-            if (s == "b")
-                then viewAllCountries catalogue
-                else do 
-                putStrLn "" 
+        else putStrLn "" 
     
+    if (s == "d")
+        then do 
+        putStr "Enter the first country code: "
+        country1 <- getLine
+        -- Check if country1 is valid
+        if elem country1 countries
+            then    
+            if (not (null country1) && country1 == "w" && not(checkJourneyman (water catalogue)))
+                || (country1 == "n" && not(checkJourneyman (wind catalogue)))
+                || (country1 == "l" && not(checkJourneyman (lightning catalogue)))
+                || (country1 == "f" && not(checkJourneyman (fire catalogue)))
+                || (country1 == "e" && not(checkJourneyman (earth catalogue)))
+                then do 
+                    putStr "Enter the second country code: "
+                    country2 <- getLine
+                    -- Check if country2 is valid
+                    if elem country2 countries
+                        then        
+                        -- Country is valid
+                        -- Check for Journeyman
+                        if (not (null country1) && country2 == "w" && not(checkJourneyman (water catalogue)))
+                            || (country2 == "n" && not(checkJourneyman (wind catalogue)))
+                            || (country2 == "l" && not(checkJourneyman (lightning catalogue)))
+                            || (country2 == "f" && not(checkJourneyman (fire catalogue)))
+                            || (country2 == "e" && not(checkJourneyman (earth catalogue)))
+                            then 
+                            if ((country1 == country2))
+                                then do 
+                                    putStrLn "The countries selected are the same . Please try again!\n"
+                                    rootPrompt catalogue
+                                else do
+                                    -- Checks for Ninja 1 and Ninja 2 are complete
+                                    putStrLn " Ninjas are going in a fight... \n "
+                                    let ninja1 = head  $ quickSort ( getCountryNinjas catalogue country1) 
+                                    let ninja2 = head  $ quickSort ( getCountryNinjas catalogue country2)  
+                                    let result  = makeRoundBetweenNinjas catalogue ninja1 ninja2
+                                    putStrLn $ getEndOfRoundMessage (fst result)
+                                    rootPrompt (snd result)
+                                    return()
+                            else do 
+                                putStrLn "There is already a Journeyman in the second country. Please try again!\n"
+                                rootPrompt catalogue
+                        else do
+                            putStrLn "Second Country entered does not exist. Please try again!\n"
+                            rootPrompt catalogue
+                    else do
+                        putStrLn "There is already a Journeyman in the first. Pleasse try again!\n"
+                        rootPrompt catalogue
+                else do 
+                    putStrLn "First ountry entered does not exist. Please try again!\n"
+                    rootPrompt catalogue
+            else putStrLn ""            
         
-    if (s == "e") 
+    if (s == "e" || s == "d" || s == "c") 
         then return ()
-        else do 
-        if(s /= "c")
-            then rootPrompt catalogue
-            else do
-                return()
-
- 
+        else do
+            rootPrompt catalogue
+            return ()
+    
+    return ()
 
 -- Sorts the Ninjas according to the order given in the instructions (round ascending, score descending)
 quickSort :: [Ninja] -> [Ninja]
