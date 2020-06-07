@@ -118,42 +118,29 @@ viewNinjaInfo n =
     (name n) ++ ", Score: " ++ (show $ score n) ++ ", Status: " ++ (status n) ++ ", Round: " ++ (show $ r n)
 
 
--- TODO: ORDERING (SCORE DESCENDING, ROUND ASCENDING)
--- ORDERING SHOULD BE DONE AFTER BATTLES AND FIRST DISTRIBUTION
-viewCountry :: NinjaCatalogue -> String -> String
-viewCountry catalogue countryCode = 
-    unlines $ map viewNinjaInfo (
-        case countryCode of
-            "e" -> quickSort $ earth catalogue
-            "l" -> quickSort $ lightning catalogue 
-            "w" -> quickSort $ water catalogue
-            "n" -> quickSort $ wind catalogue
-            "f" -> quickSort $ fire catalogue
-    )
+-- Prints sorted list of all ninjas
+viewAllCountries :: NinjaCatalogue -> IO ()
+viewAllCountries catalogue = do 
+                            let ninjaList = unlines $ map viewNinjaInfo 
+                                                            (quickSort (fire catalogue ++ 
+                                                            earth catalogue ++ 
+                                                            lightning catalogue ++ 
+                                                            water catalogue ++ 
+                                                            wind catalogue))
+                            putStrLn ninjaList
+                            return()
 
-
--- Returns sorted list of all ninjas
-viewAllCountries :: NinjaCatalogue -> String
-viewAllCountries catalogue = ninjaList
-    where 
-        ninjaList = unlines $ map viewNinjaInfo ( 
-            quickSort ( fire catalogue ++ earth catalogue ++ lightning catalogue ++ water catalogue ++ wind catalogue))
-
-
-chooseCountry :: IO String
-chooseCountry = do
-    putStrLn "Enter the country code: "
-    line <- getLine
-    --return (read line :: String)
-    return "dsdsf"
-
-
+-- Prints ninjas of specific country
 ninjasOfCountry :: NinjaCatalogue -> String -> IO ()
 ninjasOfCountry catalogue response = do
-
-    if response /= ""
+    if response /= "" && response /= "error"
         then putStrLn response
-        else do putStrLn "Enter country code: "
+        else do 
+                if response == "error"
+                    then putStrLn "The country code you have entered is not valid!\n"
+                else do
+                    putStrLn "Enter e for Earth, w for Water, f for Fire, l for Lightning and n for Wind"
+                putStrLn "Enter country code: "
                 code <- getLine
                 case code of 
                     "e" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( earth catalogue))))
@@ -161,14 +148,13 @@ ninjasOfCountry catalogue response = do
                     "w" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( water catalogue))))
                     "n" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( wind catalogue))))
                     "f" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( fire catalogue))))
-                    _ -> rootPrompt catalogue ""
+                    _ -> ninjasOfCountry catalogue "error"
     return()
 
 
-
-rootPrompt :: NinjaCatalogue -> String -> IO ()
-rootPrompt catalogue output  = do
-    let options = output : ["a) View a Country's Ninja Info 1", "b) View all Countries' Ninjas", "c) Option 3", "d) Option 3", "e) Exit" ]
+rootPrompt :: NinjaCatalogue  -> IO ()
+rootPrompt catalogue  = do
+    let options  = ["a) View a Country's Ninja Info 1", "b) View all Countries' Ninjas", "c) Option 3", "d) Option 3", "e) Exit" ]
 
     -- mapM used for mapping actions to list 
     mapM putStrLn options
@@ -179,11 +165,13 @@ rootPrompt catalogue output  = do
 
     case s of
         "a" -> ninjasOfCountry catalogue ""
-        "b" -> rootPrompt catalogue (viewAllCountries catalogue)
+        "b" -> viewAllCountries catalogue
         "e" -> return ()
-        _ -> rootPrompt catalogue ""
+    
+    if s == "e"
+        then return ()
+        else do rootPrompt catalogue
 
-    putStrLn ""
  
 
 -- Sorts the Ninjas according to the order given in the instructions (round ascending, score descending)
@@ -192,8 +180,8 @@ quickSort [] = []
 quickSort (x:xs) = 
     quickSort larger ++ [x] ++ quickSort smaller
         where
-            smaller = [a| a <- xs, compareNinjas x a]
-            larger =  [b| b <- xs, compareNinjas b x]
+            smaller = [a | a <- xs, compareNinjas x a]
+            larger = [b | b <- xs, compareNinjas b x]
 
 
 --Compares two Ninjas according to their round and score number
@@ -212,4 +200,4 @@ main = do
     contents <- hGetContents handle
     let lineContent = lines contents
     let catalogue = createNinjaCatalogue lineContent
-    rootPrompt catalogue ""
+    rootPrompt catalogue 
