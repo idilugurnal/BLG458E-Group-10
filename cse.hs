@@ -131,6 +131,7 @@ viewAllCountries catalogue = do
                             return()
 
 -- Prints ninjas of specific country
+-- TODO : Add Journeyman status change
 ninjasOfCountry :: NinjaCatalogue -> String -> IO ()
 ninjasOfCountry catalogue response = do
     if response /= "" && response /= "error"
@@ -151,39 +152,32 @@ ninjasOfCountry catalogue response = do
                     _ -> ninjasOfCountry catalogue "error"
     return()
 
+-- Given a ninja list, returns a list of names of the ninjas
 getNinjaNames :: [Ninja] -> [String]
 getNinjaNames [] = []
 getNinjaNames y@(x:xs)
     | otherwise = (name x) : getNinjaNames xs
 
+-- Checks if a ninja is a journeyman
 isJourneyMan :: Ninja -> Bool
 isJourneyMan ninja
     | r ninja >= 3 = True
     | otherwise = False
 
+-- Checks if the list of ninjas have a journeyman in them
 checkJourneyman :: [Ninja] -> Bool
 checkJourneyman [] = False
 checkJourneyman y@(x:xs)
     | isJourneyMan x = True
     | otherwise = checkJourneyman xs
 
-
+-- Gets current status of a ninja
 getStatus :: Int -> String
 getStatus round 
     | round == 3 = "Journeyman"
     | otherwise = "Junior"
 
-isName :: String -> String -> Bool
-isName currentName ninjaName 
-    |  currentName == ninjaName = True
-    | otherwise = False
-
-filterNinja :: String -> [Ninja] -> [Ninja]
-filterNinja ninjaName [] = []
-filterNinja ninjaName y@(x:xs) 
-    | isName (name x) ninjaName = x : filterNinja ninjaName xs
-    | otherwise = filterNinja ninjaName xs
-
+-- Returns the updated list of country after a round has happened 
 getUpdatedCountryList :: Ninja -> [Ninja] -> [Ninja]
 getUpdatedCountryList ninja [] = []
 getUpdatedCountryList ninja y@(x:xs) 
@@ -195,6 +189,7 @@ getUpdatedCountryList ninja y@(x:xs)
                 | (country first == country second) && (name first == name second) = True
                 | otherwise = False
 
+-- Returns the updated ninja catalogue
 updateCatalogue :: NinjaCatalogue -> Ninja -> NinjaCatalogue
 updateCatalogue catalogue ninja = case (country ninja) of
     'e' -> NinjaCatalogue {fire = fire catalogue , 
@@ -229,6 +224,7 @@ updateCatalogue catalogue ninja = case (country ninja) of
                             earth = earth catalogue
                             }
 
+-- Case C, round between two ninjas
 makeRoundBetweenNinjas :: NinjaCatalogue -> Ninja -> Ninja -> (Ninja , NinjaCatalogue)
 makeRoundBetweenNinjas catalogue ninja1 ninja2 
     | (score ninja1 > score ninja2) || ((score ninja1 == score ninja2) && ((abilityImpact (ability1 ninja1)) + (abilityImpact (ability2 ninja1))) > (( abilityImpact (ability1 ninja2)) + (abilityImpact (ability2 ninja2))) )
@@ -256,6 +252,7 @@ makeRoundBetweenNinjas catalogue ninja1 ninja2
                         r = ((r ninja2) + 1),
                         score = ((score ninja2) + 10)}
 
+-- Returns the list of ninjas in a country
 getCountryNinjas :: NinjaCatalogue -> String -> [Ninja]
 getCountryNinjas catalogue code = case code of
         "w" -> water catalogue 
@@ -264,12 +261,14 @@ getCountryNinjas catalogue code = case code of
         "e" -> earth catalogue
         "f" -> fire catalogue
 
+-- After a round finishes this message is printed
 getEndOfRoundMessage :: Ninja -> String
 getEndOfRoundMessage winner = message 
     where
         message :: String
         message = "Winner: " ++ (name winner) ++ ", Round: " ++ (show $ r winner) ++ ", Status: " ++ (status winner) ++ "\n"
 
+-- Main flow
 rootPrompt :: NinjaCatalogue  -> IO ()
 rootPrompt catalogue  = do
     let options  = ["a) View a Country's Ninja Information", "b) View all Countries' Ninja Information", 
@@ -412,8 +411,8 @@ quickSort (x:xs) =
 --Compares two Ninjas according to their round and score number
 compareNinjas :: Ninja -> Ninja -> Bool
 compareNinjas first second 
+    |  r first < r second = True
     | (r first == r second) && (score first >= score second) = True
-    | r first > r second = True
     | otherwise = False
 
 main :: IO ()
