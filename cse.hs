@@ -91,8 +91,7 @@ stringToNinja input = ninja
                     )
                     }
 
--- TODO: COMMENT
--- TODO: DO THE SORTING HERE
+-- Distributes Ninjas to their respective countries 
 distributeNinjas :: Char -> [Ninja] -> [Ninja]
 distributeNinjas place ninjaList 
     | null ninjaList = []
@@ -100,7 +99,7 @@ distributeNinjas place ninjaList
     | otherwise = distributeNinjas place (tail ninjaList)
     
 
--- TODO: COMMENT
+-- Creates the Ninja Catalogue
 createNinjaCatalogue :: [String] -> NinjaCatalogue
 createNinjaCatalogue ninjas = catalogue
     where
@@ -154,10 +153,25 @@ rootPrompt catalogue = do
 
     case s of
         "e" -> return ()
-        _   -> rootPrompt catalogue
+        _ -> rootPrompt catalogue
+    
+
+-- Sorts the Ninjas according to the order given in the instructions (round ascending, score descending)
+quickSort :: [Ninja] -> [Ninja]
+quickSort [] = []
+quickSort (x:xs) = 
+    quickSort larger ++ [x] ++ quickSort smaller
+        where
+            smaller = [a| a <- xs, compareNinjas x a]
+            larger =  [b| b <- xs, compareNinjas b x]
 
 
-
+--Compares two Ninjas according to their round and score number
+compareNinjas :: Ninja -> Ninja -> Bool
+compareNinjas first second 
+    | (r first == r second) && (score first >= score second) = True
+    | r first > r second = True
+    | otherwise = False
 
 main :: IO ()
 main = do
@@ -168,5 +182,8 @@ main = do
     contents <- hGetContents handle
     let lineContent = lines contents
     let catalogue = createNinjaCatalogue lineContent
+
+    let result = quickSort (fire catalogue)
+    print(result)
 
     rootPrompt catalogue
