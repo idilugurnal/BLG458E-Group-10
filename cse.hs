@@ -194,6 +194,13 @@ makeRoundBetweenNinjas catalogue ninja1 ninja2
      = ninja1
     | otherwise = ninja2
 
+getCountryNinjas :: NinjaCatalogue -> String -> [Ninja]
+getCountryNinjas catalogue code = case code of
+        "w" -> water catalogue 
+        "n" -> wind catalogue
+        "l" -> lightning catalogue
+        "e" -> earth catalogue
+        "f" -> fire catalogue
 
 rootPrompt :: NinjaCatalogue  -> IO ()
 rootPrompt catalogue  = do
@@ -272,14 +279,12 @@ rootPrompt catalogue  = do
                                                 else do
                                                 -- Checks for Ninja 1 and Ninja 2 are complete
                                                 putStrLn " Ninjas are going in a fight... \n "
-                                                let ninja1 = filter (\a -> (name a) == name1) (fire catalogue)
-                                                let ninja2 = filter (\a -> (name a) == name1) (lightning catalogue)
+                                                let ninja1 = filter (\a -> (name a) == name1) (getCountryNinjas catalogue country1)
+                                                let ninja2 = filter (\a -> (name a) == name1) (getCountryNinjas catalogue country2)
                                                 let winner = makeRoundBetweenNinjas catalogue (head ninja1) (head ninja2)
                                                 print("Winner:")
-                                                print(winner)
-                                                rootPrompt catalogue
-                                                
-                                        
+                                                --print(winner)
+                                                return() 
                                         else do 
                                         putStrLn "There is already a Journeyman in the country of the second Ninja. Pleasse try again!\n"
                                         return() 
@@ -305,8 +310,6 @@ rootPrompt catalogue  = do
             else do
             putStrLn "Wrong name is given for the first Ninja. Please try again!\n"
             return()
-
-        -- Check if name1 is valid
         -- C
         else 
         if (s == "a")
@@ -316,8 +319,9 @@ rootPrompt catalogue  = do
                 then viewAllCountries catalogue
                 else do 
                 putStrLn "" 
+    
         
-    if (s == "e") && (s/= "c")
+    if (s == "e") 
         then return ()
         else do 
         rootPrompt catalogue
