@@ -140,6 +140,14 @@ viewAllCountries catalogue = ninjaList
             quickSort ( fire catalogue ++ earth catalogue ++ lightning catalogue ++ water catalogue ++ wind catalogue))
 
 
+chooseCountry :: IO Char
+chooseCountry = do
+    putStrLn "Enter the country code: "
+    line <- getLine
+    let ch = read line :: Char
+    return (ch)
+
+
 
 rootPrompt :: NinjaCatalogue -> String -> IO ()
 rootPrompt catalogue output  = do
@@ -153,6 +161,7 @@ rootPrompt catalogue output  = do
     putStrLn ""
 
     case s of
+        "a" -> rootPrompt catalogue (viewCountry catalogue chooseCountry)
         "b" -> rootPrompt catalogue (viewAllCountries catalogue)
         "e" -> return ()
         _ -> rootPrompt catalogue ""
