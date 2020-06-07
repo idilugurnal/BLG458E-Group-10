@@ -151,10 +151,33 @@ ninjasOfCountry catalogue response = do
                     _ -> ninjasOfCountry catalogue "error"
     return()
 
+getNinjaNames :: [Ninja] -> [String]
+getNinjaNames [] = []
+getNinjaNames y@(x:xs)
+    | otherwise = (name x) : getNinjaNames xs
+
+isJourneyMan :: Ninja -> Bool
+isJourneyMan ninja
+    | r ninja >= 3 = True
+    | otherwise = False
+
+checkJourneyman :: [Ninja] -> Bool
+checkJourneyman [] = False
+checkJourneyman y@(x:xs)
+    | isJourneyMan x = True
+    | otherwise = checkJourneyman xs
+
 
 rootPrompt :: NinjaCatalogue  -> IO ()
 rootPrompt catalogue  = do
-    let options  = ["a) View a Country's Ninja Info 1", "b) View all Countries' Ninjas", "c) Option 3", "d) Option 3", "e) Exit" ]
+    let options  = ["a) View a Country's Ninja Information", "b) View all Countries' Ninja Information", 
+                    "c) Make a Round Between Ninjas", "d) Make a Round Between Countries", "e) Exit" ]
+    let countries = ["w", "f", "l", "n", "e"]
+    let ninjaNames = getNinjaNames (fire catalogue ++
+                                    wind catalogue ++
+                                    water catalogue ++
+                                    lightning catalogue ++
+                                    earth catalogue )
 
     -- mapM used for mapping actions to list 
     mapM putStrLn options
@@ -162,39 +185,113 @@ rootPrompt catalogue  = do
     s <- getLine
     putStrLn $ "You typed: " ++ s
     putStrLn ""
-
-    case s of
-        "a" -> ninjasOfCountry catalogue ""
-        "b" -> viewAllCountries catalogue
-        --"c" -> rootPromt . deneme catalogue
-        "e" -> return ()
     
+    if (s == "c")
+        then do
+        -- C
+        putStrLn "Enter the name of the first Ninja: "
+        name1 <- getLine
+        -- Check if name1 is valid
+        if elem name1 ninjaNames
+            then do 
+            putStrLn "Enter the country code of the first Ninja: "
+            country1 <- getLine
+            -- Check if country1 is valid
+            if elem country1 countries
+                then    
+                if (country1 == "f" && (elem name1 (getNinjaNames (fire catalogue)))) 
+                    || (country1 == "n" && elem name1 (getNinjaNames (wind catalogue))) 
+                    || (country1 == "l" && elem name1 (getNinjaNames (lightning catalogue))) 
+                    || (country1 == "w" && elem name1 (getNinjaNames (water catalogue))) 
+                    || (country1 == "e" && elem name1 (getNinjaNames (earth catalogue))) 
+                    then do
+                    -- Country is valid
+                    -- Check for Journeyman
+                    if (not (null country1) && country1 == "w" && not(checkJourneyman (water catalogue)))
+                        || (country1 == "n" && not(checkJourneyman (wind catalogue)))
+                        || (country1 == "l" && not(checkJourneyman (lightning catalogue)))
+                        || (country1 == "f" && not(checkJourneyman (fire catalogue)))
+                        || (country1 == "e" && not(checkJourneyman (earth catalogue)))
+                        then do 
+                        -- Checks for Ninja 1 are complete go on to Ninja 2
+                        putStrLn "Enter the name of the second Ninja: "
+                        name2 <- getLine
+                        -- Check if name2 is valid
+                        if elem name1 ninjaNames
+                            then do 
+                            putStrLn "Enter the country code of the first Ninja: "
+                            country2 <- getLine
+                            -- Check if country2 is valid
+                            if elem country2 countries
+                                then    
+                                if (country1 == "f" && (elem name2 (getNinjaNames (fire catalogue)))) 
+                                    || (country2 == "n" && elem name2 (getNinjaNames (wind catalogue))) 
+                                    || (country2 == "l" && elem name2 (getNinjaNames (lightning catalogue))) 
+                                    || (country2 == "w" && elem name2 (getNinjaNames (water catalogue))) 
+                                    || (country2 == "e" && elem name2 (getNinjaNames (earth catalogue))) 
+                                    then do
+                                    -- Country is valid
+                                    -- Check for Journeyman
+                                    if (not (null country1) && country2 == "w" && not(checkJourneyman (water catalogue)))
+                                        || (country2 == "n" && not(checkJourneyman (wind catalogue)))
+                                        || (country2 == "l" && not(checkJourneyman (lightning catalogue)))
+                                        || (country2 == "f" && not(checkJourneyman (fire catalogue)))
+                                        || (country2 == "e" && not(checkJourneyman (earth catalogue)))
+                                        then do 
+                                            if ((country1 == country2) && (name1 == name2))
+                                                then do 
+                                                putStrLn "The ninjas selected are the same ninjas. Pleasse try again!\n"
+                                                return() 
+                                                else do
+                                                -- Checks for Ninja 1 and Ninja 2 are complete
+                                                putStrLn " Ninjas are going in a fight... \n "
+                                        
+                                        else do 
+                                        putStrLn "There is already a Journeyman in the country of the second Ninja. Pleasse try again!\n"
+                                        return() 
+                                    else do
+                                    putStrLn "Ninja 2 not in this country\n"
+                                    return()
+                                else do
+                                putStrLn "Country entered for the second ninja does not exist. Please try again!\n"
+                                return()
+
+                            else do
+                            putStrLn "Wrong name is given for the second Ninja. Please try again!\n"
+                            return()
+                        else do
+                        putStrLn "There is already a Journeyman in the country of the first Ninja. Pleasse try again!\n"
+                        return() 
+                    else do
+                    putStrLn "Ninja 1 not in this country\n"
+                    return()
+                else do 
+                putStrLn "Country entered for the first ninja does not exist. Please try again!\n"
+                return()
+            else do
+            putStrLn "Wrong name is given for the first Ninja. Please try again!\n"
+            return()
+
+        -- Check if name1 is valid
+        -- C
+        else 
+        if (s == "a")
+            then ninjasOfCountry catalogue ""
+            else do 
+            if (s == "b")
+                then viewAllCountries catalogue
+                else do 
+                putStrLn "" 
+        
+    if (s == "c") -- If checks are complete
+        then do
+        putStrLn ""
+        else do
+        putStrLn ""
     if s == "e"
         then return ()
-        else do rootPrompt catalogue
-
-makeRaundBetweenNinjas :: NinjaCatalogue -> String -> IO NinjaCatalogue
-makeRaundBetweenNinjas catalogue response = do
-    if response /= "" && response /= "c_error" && response /= "n_error"
-        then return catalogue
         else do 
-                
-    return()
-
-chooseNinja :: NinjaCatalogue -> String -> IO String
-chooseNinja catalogue ninjaNum = do
-    let countries = ["w", "f", "l", "n", "e"]
-    putStrLn $ "Enter the name of the" ++ ninjaNum ++ "ninja:"
-    name <- getLine
-    if elem  
-    putStrLn $ "Enter the coutry code of" ++ ninjaNum ++ "ninja:"
-    country <- getLine
-    if elem country countries 
-        then return 
-    
-
-findNinja :: IO String -> IO String -> IO String
-findNinja name country = name ++ country
+        rootPrompt catalogue
 
  
 
