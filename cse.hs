@@ -124,37 +124,41 @@ viewCountry :: NinjaCatalogue -> Char -> String
 viewCountry catalogue countryCode = 
     unlines $ map viewNinjaInfo (
         case toLower(countryCode) of
-            'e' -> earth catalogue
-            'l' -> lightning catalogue 
-            'w' -> water catalogue
-            'n' -> wind catalogue
-            'f' -> fire catalogue
+            'e' -> quickSort $ earth catalogue
+            'l' -> quickSort $ lightning catalogue 
+            'w' -> quickSort $ water catalogue
+            'n' -> quickSort $ wind catalogue
+            'f' -> quickSort $ fire catalogue
     )
 
 
--- TODO: ORDERING (SCORE DESCENDING, ROUND ASCENDING)
+-- Returns sorted list of all ninjas
 viewAllCountries :: NinjaCatalogue -> String
-viewAllCountries catalogue =
-    unlines $ [viewCountry catalogue code | code <- ['e', 'l', 'w', 'n', 'f']]
+viewAllCountries catalogue = ninjaList
+    where 
+        ninjaList = unlines $ map viewNinjaInfo ( 
+            quickSort ( fire catalogue ++ earth catalogue ++ lightning catalogue ++ water catalogue ++ wind catalogue))
 
 
-rootPrompt :: NinjaCatalogue -> IO ()
-rootPrompt catalogue = do
-    let options = ["a) View a Country's Ninja Info 1", "b) View all Countries' Ninjas", "c) Option 3", "d) Option 3", "e) Exit" ]
+
+rootPrompt :: NinjaCatalogue -> String -> IO ()
+rootPrompt catalogue output  = do
+    let options = output : ["a) View a Country's Ninja Info 1", "b) View all Countries' Ninjas", "c) Option 3", "d) Option 3", "e) Exit" ]
+
     -- mapM used for mapping actions to list 
     mapM putStrLn options
-
     putStrLn "Type the option char and press (ENTER / RETURN)"
     s <- getLine
     putStrLn $ "You typed: " ++ s
     putStrLn ""
 
-    putStrLn $ viewAllCountries catalogue
-
     case s of
+        "b" -> rootPrompt catalogue (viewAllCountries catalogue)
         "e" -> return ()
-        _ -> rootPrompt catalogue
-    
+        _ -> rootPrompt catalogue ""
+
+    putStrLn ""
+ 
 
 -- Sorts the Ninjas according to the order given in the instructions (round ascending, score descending)
 quickSort :: [Ninja] -> [Ninja]
@@ -182,8 +186,4 @@ main = do
     contents <- hGetContents handle
     let lineContent = lines contents
     let catalogue = createNinjaCatalogue lineContent
-
-    let result = quickSort (fire catalogue)
-    print(result)
-
-    rootPrompt catalogue
+    rootPrompt catalogue ""

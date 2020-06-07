@@ -1,18 +1,5 @@
 .DS_Store
+*.exe
 cse
-cse.hi
-cse.o
-
-
-createNinjaCatalogue :: FilePath -> NinjaCatalogue
-createNinjaCatalogue file = catalogue
-    where
-        lines = readLines file 
-        ninjaLines = map show lines
-        ninjaList = parseList ninjaLines
-        catalogue = NinjaCatalogue {fire = distributeNinjas "Fire" ninjaList , 
-                                    lightning = distributeNinjas "Lightning" ninjaList , 
-                                    water = distributeNinjas "Water" ninjaList , 
-                                    wind = distributeNinjas "Wind" ninjaList , 
-                                    earth = distributeNinjas "Earth" ninjaList
-                                    }
+*.hi
+*.o
