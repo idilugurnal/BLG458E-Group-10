@@ -21,7 +21,12 @@ data NinjaCatalogue = NinjaCatalogue {
     lightning :: [Ninja],
     water :: [Ninja], 
     wind :: [Ninja],
-    earth :: [Ninja]
+    earth :: [Ninja],
+    fireCannotFight :: Bool,
+    lightningCannotFight :: Bool,
+    waterCannotFight :: Bool,
+    windCannotFight :: Bool,
+    earthCannotFight :: Bool
 } deriving Show
 
 
@@ -59,6 +64,10 @@ abilityImpact ability
     | ability == "Summon" = 50
     | ability == "Storm" = 10
     | ability == "Rock" = 20
+
+capitalized :: String -> String
+capitalized [] = []
+capitalized (head:tail) = toUpper head : map toLower tail
 
 
 -- Calculates the initial score during Ninja creations
@@ -109,7 +118,12 @@ createNinjaCatalogue ninjas = catalogue
                                     lightning = distributeNinjas 'l' ninjaList , 
                                     water = distributeNinjas 'w' ninjaList , 
                                     wind = distributeNinjas 'n' ninjaList , 
-                                    earth = distributeNinjas 'e' ninjaList
+                                    earth = distributeNinjas 'e' ninjaList ,
+                                    fireCannotFight = False ,
+                                    lightningCannotFight = False ,
+                                    waterCannotFight = False ,
+                                    windCannotFight = False ,
+                                    earthCannotFight = False
                                     }
 
 
@@ -136,6 +150,14 @@ viewAllCountries catalogue = do
     putStrLn $ vievNinjaList $ getAllNinjasSorted catalogue
     return ()
 
+viewCountryFightStatus :: NinjaCatalogue -> String -> String
+viewCountryFightStatus catalogue country
+    | (checkJourneyman $ getCountryNinjas catalogue country) = countryName ++ " country cannot be included in a fight"
+    | otherwise = ""
+    where
+        countryName = capitalized $ countryCodeToVerbose $ toLower $ head country
+
+
 -- Prints ninjas of specific country
 -- TODO : Add Journeyman status change
 ninjasOfCountry :: NinjaCatalogue -> String -> IO ()
@@ -151,13 +173,14 @@ ninjasOfCountry catalogue response = do
                 code <- getLine
                 let lowerCasedCode = map toLower code
                 case lowerCasedCode of 
-                    "e" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( earth catalogue))))
-                    "l" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( lightning catalogue))))
-                    "w" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( water catalogue))))
-                    "n" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( wind catalogue))))
-                    "f" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( fire catalogue))))
+                    "e" -> ninjasOfCountry catalogue $ unlines ((map viewNinjaInfo $ quickSort $ earth catalogue) ++ [viewCountryFightStatus catalogue "e"])
+                    "l" -> ninjasOfCountry catalogue $ unlines ((map viewNinjaInfo $ quickSort $ lightning catalogue) ++ [viewCountryFightStatus catalogue "l"])
+                    "w" -> ninjasOfCountry catalogue $ unlines ((map viewNinjaInfo $ quickSort $ water catalogue) ++ [viewCountryFightStatus catalogue "w"])
+                    "n" -> ninjasOfCountry catalogue $ unlines ((map viewNinjaInfo $ quickSort $ wind catalogue) ++ [viewCountryFightStatus catalogue "n"])
+                    "f" -> ninjasOfCountry catalogue $ unlines ((map viewNinjaInfo $ quickSort $ fire catalogue) ++ [viewCountryFightStatus catalogue "f"])
                     _ -> ninjasOfCountry catalogue "error"
     return()
+
 
 -- Given a ninja list, returns a list of names of the ninjas
 getNinjaNames :: [Ninja] -> [String]
@@ -166,9 +189,7 @@ getNinjaNames ninjas = [name n | n <- ninjas]
 
 -- Checks if a ninja is a journeyman
 isJourneyMan :: Ninja -> Bool
-isJourneyMan ninja
-    | r ninja >= 3 = True
-    | otherwise = False
+isJourneyMan ninja = (r ninja) >= 3
 
 -- Checks if the list of ninjas have a journeyman in them
 checkJourneyman :: [Ninja] -> Bool
@@ -195,39 +216,64 @@ getUpdatedCountryList ninja y@(x:xs)
                 | (country first == country second) && (name first == name second) = True
                 | otherwise = False
 
--- Returns the updated ninja catalogue
+-- Returns the updated ninja catalogue, also sets flags for containing journeymen
 updateCatalogue :: NinjaCatalogue -> Ninja -> NinjaCatalogue
 updateCatalogue catalogue ninja = case (country ninja) of
     'e' -> NinjaCatalogue {fire = fire catalogue , 
                             lightning = lightning catalogue , 
                             water = water catalogue , 
-                            wind = wind catalogue, 
-                            earth = ninja : (getUpdatedCountryList ninja (earth catalogue))
+                            wind = wind catalogue , 
+                            earth = ninja : (getUpdatedCountryList ninja (earth catalogue)) ,
+                            fireCannotFight = fireCannotFight catalogue ,
+                            lightningCannotFight = lightningCannotFight catalogue ,
+                            waterCannotFight = waterCannotFight catalogue ,
+                            windCannotFight = windCannotFight catalogue ,
+                            earthCannotFight = (isJourneyMan ninja) || earthCannotFight catalogue
                             }
 
     'f' -> NinjaCatalogue {fire = ninja : (getUpdatedCountryList ninja (fire catalogue)), 
                             lightning = lightning catalogue , 
                             water = water catalogue , 
-                            wind = wind catalogue, 
-                            earth = earth catalogue
+                            wind = wind catalogue , 
+                            earth = earth catalogue ,
+                            fireCannotFight = (isJourneyMan ninja) || fireCannotFight catalogue,
+                            lightningCannotFight = lightningCannotFight catalogue ,
+                            waterCannotFight = waterCannotFight catalogue ,
+                            windCannotFight = windCannotFight catalogue ,
+                            earthCannotFight = earthCannotFight catalogue
                             }
     'w' -> NinjaCatalogue {fire = fire catalogue , 
                             lightning = lightning catalogue , 
-                            water = ninja : (getUpdatedCountryList ninja (water catalogue)), 
-                            wind = wind catalogue, 
-                            earth = earth catalogue
+                            water = ninja : (getUpdatedCountryList ninja (water catalogue)) , 
+                            wind = wind catalogue , 
+                            earth = earth catalogue , 
+                            fireCannotFight = fireCannotFight catalogue ,
+                            lightningCannotFight = lightningCannotFight catalogue ,
+                            waterCannotFight = (isJourneyMan ninja) || waterCannotFight catalogue ,
+                            windCannotFight = windCannotFight catalogue ,
+                            earthCannotFight = earthCannotFight catalogue
                             }
     'n' -> NinjaCatalogue {fire = fire catalogue , 
                             lightning = lightning catalogue , 
                             water = water catalogue , 
                             wind = ninja : (getUpdatedCountryList ninja (wind catalogue)), 
-                            earth = earth catalogue
+                            earth = earth catalogue ,
+                            fireCannotFight = fireCannotFight catalogue ,
+                            lightningCannotFight = lightningCannotFight catalogue ,
+                            waterCannotFight = waterCannotFight catalogue ,
+                            windCannotFight = (isJourneyMan ninja) || windCannotFight catalogue ,
+                            earthCannotFight = earthCannotFight catalogue
                             }
     'l' -> NinjaCatalogue {fire = fire catalogue , 
                             lightning = ninja : (getUpdatedCountryList ninja (lightning catalogue)) , 
                             water = water catalogue , 
                             wind = wind catalogue, 
-                            earth = earth catalogue
+                            earth = earth catalogue ,
+                            fireCannotFight = fireCannotFight catalogue ,
+                            lightningCannotFight = (isJourneyMan ninja) || lightningCannotFight catalogue,
+                            waterCannotFight = waterCannotFight catalogue ,
+                            windCannotFight = windCannotFight catalogue ,
+                            earthCannotFight = earthCannotFight catalogue
                             }
 
 -- Case C, round between two ninjas
