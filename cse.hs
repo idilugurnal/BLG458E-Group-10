@@ -134,6 +134,7 @@ viewNinjaInfo n =
 
 vievNinjaList :: [Ninja] -> String
 -- Function composition
+-- Statement 'unlines . map viewNinjaInfo' is a function itself, higher order function
 vievNinjaList = unlines . map viewNinjaInfo
 
 getAllNinjas :: NinjaCatalogue -> [Ninja]
@@ -144,7 +145,7 @@ getAllNinjas catalogue = concat [ fire catalogue,
                                 wind catalogue  ]
 
 getAllNinjasSorted :: NinjaCatalogue -> [Ninja]
--- Function composition
+-- Function composition (also higher order function)
 getAllNinjasSorted = quickSort . getAllNinjas
 
 -- Prints sorted list of all ninjas
@@ -198,9 +199,7 @@ isJourneyMan ninja = (r ninja) >= 3
 -- Checks if the list of ninjas have a journeyman in them
 checkJourneyman :: [Ninja] -> Bool
 checkJourneyman [] = False
-checkJourneyman y@(x:xs)
-    | isJourneyMan x = True
-    | otherwise = checkJourneyman xs
+checkJourneyman ninjas = any isJourneyMan ninjas
 
 -- Gets current status of a ninja
 getStatus :: Int -> String
@@ -510,22 +509,26 @@ rootPrompt catalogue  = do
     
     return ()
 
--- Sorts the Ninjas according to the order given in the instructions (round ascending, score descending)
-quickSort :: [Ninja] -> [Ninja]
-quickSort [] = []
-quickSort (x:xs) = 
-    quickSort larger ++ [x] ++ quickSort smaller
-        where
-            smaller = [a | a <- xs, not $ compareNinjas a x] 
-            larger = [b | b <- xs, compareNinjas b x]
-
-
 --Compares two Ninjas according to their round and score number
 compareNinjas :: Ninja -> Ninja -> Bool
 compareNinjas first second 
     |  r first < r second = True
     | (r first == r second) && (score first >= score second) = True
     | otherwise = False
+
+-- Higher order sort function that takes ninja comparator as an input
+quickSortGenericComparator :: (Ninja -> Ninja -> Bool) -> [Ninja] -> [Ninja]
+quickSortGenericComparator comparator [] = []
+quickSortGenericComparator comparator (x:xs) =
+    quickSortGenericComparator comparator larger ++ [x] ++ quickSortGenericComparator comparator smaller
+        where
+            smaller = [a | a <- xs, not $ comparator a x] 
+            larger = [b | b <- xs, comparator b x]
+
+-- Quick sort with comparator passed in
+quickSort :: [Ninja] -> [Ninja]
+quickSort = quickSortGenericComparator compareNinjas
+
 
 main :: IO ()
 main = do
