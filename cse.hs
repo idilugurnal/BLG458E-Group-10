@@ -344,7 +344,7 @@ rootPrompt catalogue  = do
                             -- Check if country2 is valid
                             if elem country2 countries
                                 then    
-                                if (country1 == "f" && (elem name2 (getNinjaNames (fire catalogue)))) 
+                                if (country2 == "f" && (elem name2 (getNinjaNames (fire catalogue)))) 
                                     || (country2 == "n" && elem name2 (getNinjaNames (wind catalogue))) 
                                     || (country2 == "l" && elem name2 (getNinjaNames (lightning catalogue))) 
                                     || (country2 == "w" && elem name2 (getNinjaNames (water catalogue))) 
@@ -352,7 +352,7 @@ rootPrompt catalogue  = do
                                     then do
                                     -- Country is valid
                                     -- Check for Journeyman
-                                    if (not (null country1) && country2 == "w" && not(checkJourneyman (water catalogue)))
+                                    if (not (null country2) && country2 == "w" && not(checkJourneyman (water catalogue)))
                                         || (country2 == "n" && not(checkJourneyman (wind catalogue)))
                                         || (country2 == "l" && not(checkJourneyman (lightning catalogue)))
                                         || (country2 == "f" && not(checkJourneyman (fire catalogue)))
@@ -420,7 +420,7 @@ rootPrompt catalogue  = do
                         then        
                         -- Country is valid
                         -- Check for Journeyman
-                        if (not (null country1) && country2 == "w" && not(checkJourneyman (water catalogue)))
+                        if (not (null country2) && country2 == "w" && not(checkJourneyman (water catalogue)))
                             || (country2 == "n" && not(checkJourneyman (wind catalogue)))
                             || (country2 == "l" && not(checkJourneyman (lightning catalogue)))
                             || (country2 == "f" && not(checkJourneyman (fire catalogue)))
