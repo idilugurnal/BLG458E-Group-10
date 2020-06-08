@@ -148,6 +148,7 @@ getAllNinjasSorted = quickSort . getAllNinjas
 viewAllCountries :: NinjaCatalogue -> IO ()
 viewAllCountries catalogue = do
     putStrLn $ vievNinjaList $ getAllNinjasSorted catalogue
+    putStrLn $ unlines $ filter (not . null) $ map (viewCountryFightStatus catalogue) ["f", "e", "l", "n", "w"]
     return ()
 
 viewCountryFightStatus :: NinjaCatalogue -> String -> String
@@ -159,7 +160,6 @@ viewCountryFightStatus catalogue country
 
 
 -- Prints ninjas of specific country
--- TODO : Add Journeyman status change
 ninjasOfCountry :: NinjaCatalogue -> String -> IO ()
 ninjasOfCountry catalogue response = do
     if response /= "" && response /= "error"
