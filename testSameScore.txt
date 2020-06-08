@@ -1,0 +1,13 @@
+Naruto1 Fire 40 45 Clone Summon
+Naruto2 Fire 40 45 Clone Summon
+Naruto3 Fire 40 45 Clone Summon
+Naruto4 Fire 40 45 Clone Summon
+Naruto5 Fire 40 45 Clone Summon
+Gaara1 Wind 55 80 Vision Sand
+Gaara2 Wind 55 80 Vision Sand
+Gaara3 Wind 55 80 Vision Sand
+Gaara4 Wind 55 80 Vision Sand
+Gaara5 Wind 55 80 Vision Sand
+Midare Water 35 45 Hit Water
+Haruki Earth 50 65 Blade Rock
+Kira Lightning 40 60 Storm Rock      

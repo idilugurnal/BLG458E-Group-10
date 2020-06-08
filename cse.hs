@@ -512,7 +512,7 @@ quickSort [] = []
 quickSort (x:xs) = 
     quickSort larger ++ [x] ++ quickSort smaller
         where
-            smaller = [a | a <- xs, compareNinjas x a]
+            smaller = [a | a <- xs, not $ compareNinjas a x] 
             larger = [b | b <- xs, compareNinjas b x]
 
 
