@@ -132,6 +132,7 @@ viewNinjaInfo n =
     (name n) ++ ", Score: " ++ (show $ score n) ++ ", Status: " ++ (status n) ++ ", Round: " ++ (show $ r n)
 
 vievNinjaList :: [Ninja] -> String
+-- Function composition
 vievNinjaList = unlines . map viewNinjaInfo
 
 getAllNinjas :: NinjaCatalogue -> [Ninja]
@@ -142,12 +143,14 @@ getAllNinjas catalogue = concat [ fire catalogue,
                                 wind catalogue  ]
 
 getAllNinjasSorted :: NinjaCatalogue -> [Ninja]
+-- Function composition
 getAllNinjasSorted = quickSort . getAllNinjas
 
 -- Prints sorted list of all ninjas
 viewAllCountries :: NinjaCatalogue -> IO ()
 viewAllCountries catalogue = do
     putStrLn $ vievNinjaList $ getAllNinjasSorted catalogue
+    -- Currying at map function (viewCountryFightStatus catalogue)
     putStrLn $ unlines $ filter (not . null) $ map (viewCountryFightStatus catalogue) ["f", "e", "l", "n", "w"]
     return ()
 
