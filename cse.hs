@@ -149,7 +149,8 @@ ninjasOfCountry catalogue response = do
                     putStrLn "Enter e for Earth, w for Water, f for Fire, l for Lightning and n for Wind"
                 putStrLn "Enter country code: "
                 code <- getLine
-                case code of 
+                let lowerCasedCode = map toLower code
+                case lowerCasedCode of 
                     "e" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( earth catalogue))))
                     "l" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( lightning catalogue))))
                     "w" -> ninjasOfCountry catalogue (unlines ( map viewNinjaInfo (quickSort ( water catalogue))))
@@ -312,7 +313,8 @@ rootPrompt catalogue  = do
         if elem name1 ninjaNames
             then do 
             putStrLn "Enter the country code of the first Ninja: "
-            country1 <- getLine
+            inputCountry1 <- getLine
+            let country1 = map toLower inputCountry1
             -- Check if country1 is valid
             if elem country1 countries
                 then    
@@ -337,7 +339,8 @@ rootPrompt catalogue  = do
                         if elem name2 ninjaNames
                             then do 
                             putStrLn "Enter the country code of the first Ninja: "
-                            country2 <- getLine
+                            inputCountry2 <- getLine
+                            let country2 = map toLower inputCountry2
                             -- Check if country2 is valid
                             if elem country2 countries
                                 then    
@@ -398,7 +401,8 @@ rootPrompt catalogue  = do
     if (s == "d")
         then do 
         putStrLn "Enter the first country code: "
-        country1 <- getLine
+        inputCountry1 <- getLine
+        let country1 = map toLower inputCountry1
         -- Check if country1 is valid
         if elem country1 countries
             then    
@@ -409,7 +413,8 @@ rootPrompt catalogue  = do
                 || (country1 == "e" && not(checkJourneyman (earth catalogue)))
                 then do 
                     putStrLn "Enter the second country code: "
-                    country2 <- getLine
+                    inputCountry2 <- getLine
+                    let country2 = map toLower inputCountry2
                     -- Check if country2 is valid
                     if elem country2 countries
                         then        
