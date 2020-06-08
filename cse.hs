@@ -1,6 +1,7 @@
 import Data.List
 import Data.Char
 import System.IO 
+import System.Environment
 
 
 data Ninja = Ninja {
@@ -345,12 +346,12 @@ rootPrompt catalogue  = do
     if (s == "a")
         then do 
         ninjasOfCountry catalogue ""
-        else do putStrLn "" 
+        else do putStr "" 
     
     if (s == "b")
         then do
         viewAllCountries catalogue
-        else do putStrLn "" 
+        else do putStr "" 
     
     if (s == "c")
         then do
@@ -374,11 +375,11 @@ rootPrompt catalogue  = do
                     then do
                     -- Country is valid
                     -- Check for Journeyman
-                    if (not (null country1) && country1 == "w" && not(checkJourneyman (water catalogue)))
+                    if (not (null country1)) && ((country1 == "w" && not(checkJourneyman (water catalogue)))
                         || (country1 == "n" && not(checkJourneyman (wind catalogue)))
                         || (country1 == "l" && not(checkJourneyman (lightning catalogue)))
                         || (country1 == "f" && not(checkJourneyman (fire catalogue)))
-                        || (country1 == "e" && not(checkJourneyman (earth catalogue)))
+                        || (country1 == "e" && not(checkJourneyman (earth catalogue))))
                         then do 
                         -- Checks for Ninja 1 are complete go on to Ninja 2
                         putStrLn "Enter the name of the second Ninja: "
@@ -400,11 +401,11 @@ rootPrompt catalogue  = do
                                     then do
                                     -- Country is valid
                                     -- Check for Journeyman
-                                    if (not (null country2) && country2 == "w" && not(checkJourneyman (water catalogue)))
+                                    if (not (null country2)) && ((country2 == "w" && not(checkJourneyman (water catalogue)))
                                         || (country2 == "n" && not(checkJourneyman (wind catalogue)))
                                         || (country2 == "l" && not(checkJourneyman (lightning catalogue)))
                                         || (country2 == "f" && not(checkJourneyman (fire catalogue)))
-                                        || (country2 == "e" && not(checkJourneyman (earth catalogue)))
+                                        || (country2 == "e" && not(checkJourneyman (earth catalogue))))
                                         then do 
                                             if ((country1 == country2) && (name1 == name2))
                                                 then do 
@@ -444,7 +445,7 @@ rootPrompt catalogue  = do
             putStrLn "Wrong name is given for the first Ninja. Please try again!\n"
             rootPrompt catalogue
         -- C
-        else putStrLn "" 
+        else putStr "" 
     
     if (s == "d")
         then do 
@@ -454,11 +455,11 @@ rootPrompt catalogue  = do
         -- Check if country1 is valid
         if elem country1 countries
             then    
-            if (not (null country1) && country1 == "w" && not(checkJourneyman (water catalogue)))
+            if (not (null country1)) && ((country1 == "w" && not(checkJourneyman (water catalogue)))
                 || (country1 == "n" && not(checkJourneyman (wind catalogue)))
                 || (country1 == "l" && not(checkJourneyman (lightning catalogue)))
                 || (country1 == "f" && not(checkJourneyman (fire catalogue)))
-                || (country1 == "e" && not(checkJourneyman (earth catalogue)))
+                || (country1 == "e" && not(checkJourneyman (earth catalogue))))
                 then do 
                     putStrLn "Enter the second country code: "
                     inputCountry2 <- getLine
@@ -468,11 +469,11 @@ rootPrompt catalogue  = do
                         then        
                         -- Country is valid
                         -- Check for Journeyman
-                        if (not (null country2) && country2 == "w" && not(checkJourneyman (water catalogue)))
+                        if (not (null country2)) && ((country2 == "w" && not(checkJourneyman (water catalogue)))
                             || (country2 == "n" && not(checkJourneyman (wind catalogue)))
                             || (country2 == "l" && not(checkJourneyman (lightning catalogue)))
                             || (country2 == "f" && not(checkJourneyman (fire catalogue)))
-                            || (country2 == "e" && not(checkJourneyman (earth catalogue)))
+                            || (country2 == "e" && not(checkJourneyman (earth catalogue))))
                             then 
                             if ((country1 == country2))
                                 then do 
@@ -499,7 +500,7 @@ rootPrompt catalogue  = do
                 else do 
                     putStrLn "First ountry entered does not exist. Please try again!\n"
                     rootPrompt catalogue
-            else putStrLn ""            
+            else putStr ""            
         
     if (s == "e" || s == "d" || s == "c") 
         then return ()
@@ -529,9 +530,9 @@ compareNinjas first second
 main :: IO ()
 main = do
     hSetBuffering stdin NoBuffering
-    --args <- getArgs
-    --let fileName = head args
-    handle <- openFile "csereport.txt" ReadMode
+    args <- getArgs
+    let fileName = head args
+    handle <- openFile fileName ReadMode
     contents <- hGetContents handle
     let lineContent = lines contents
     let catalogue = createNinjaCatalogue lineContent
