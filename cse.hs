@@ -117,18 +117,24 @@ viewNinjaInfo :: Ninja -> String
 viewNinjaInfo n = 
     (name n) ++ ", Score: " ++ (show $ score n) ++ ", Status: " ++ (status n) ++ ", Round: " ++ (show $ r n)
 
+vievNinjaList :: [Ninja] -> String
+vievNinjaList = unlines . map viewNinjaInfo
+
+getAllNinjas :: NinjaCatalogue -> [Ninja]
+getAllNinjas catalogue = concat [ fire catalogue,  
+                                earth catalogue, 
+                                lightning catalogue, 
+                                water catalogue,
+                                wind catalogue  ]
+
+getAllNinjasSorted :: NinjaCatalogue -> [Ninja]
+getAllNinjasSorted = quickSort . getAllNinjas
 
 -- Prints sorted list of all ninjas
 viewAllCountries :: NinjaCatalogue -> IO ()
-viewAllCountries catalogue = do 
-                            let ninjaList = unlines $ map viewNinjaInfo 
-                                                            (quickSort (fire catalogue ++ 
-                                                            earth catalogue ++ 
-                                                            lightning catalogue ++ 
-                                                            water catalogue ++ 
-                                                            wind catalogue))
-                            putStrLn ninjaList
-                            return()
+viewAllCountries catalogue = do
+    putStrLn $ vievNinjaList $ getAllNinjasSorted catalogue
+    return ()
 
 -- Prints ninjas of specific country
 -- TODO : Add Journeyman status change
@@ -391,7 +397,7 @@ rootPrompt catalogue  = do
     
     if (s == "d")
         then do 
-        putStr "Enter the first country code: "
+        putStrLn "Enter the first country code: "
         country1 <- getLine
         -- Check if country1 is valid
         if elem country1 countries
@@ -402,7 +408,7 @@ rootPrompt catalogue  = do
                 || (country1 == "f" && not(checkJourneyman (fire catalogue)))
                 || (country1 == "e" && not(checkJourneyman (earth catalogue)))
                 then do 
-                    putStr "Enter the second country code: "
+                    putStrLn "Enter the second country code: "
                     country2 <- getLine
                     -- Check if country2 is valid
                     if elem country2 countries
