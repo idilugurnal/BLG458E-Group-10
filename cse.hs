@@ -17,7 +17,7 @@ data Ninja = Ninja {
 
 
 data NinjaCatalogue = NinjaCatalogue {
-    fire :: [Ninja], 
+    fire :: [Ninja],
     lightning :: [Ninja],
     water :: [Ninja], 
     wind :: [Ninja],
@@ -161,9 +161,8 @@ ninjasOfCountry catalogue response = do
 
 -- Given a ninja list, returns a list of names of the ninjas
 getNinjaNames :: [Ninja] -> [String]
-getNinjaNames [] = []
-getNinjaNames y@(x:xs)
-    | otherwise = (name x) : getNinjaNames xs
+-- List comprehension
+getNinjaNames ninjas = [name n | n <- ninjas]
 
 -- Checks if a ninja is a journeyman
 isJourneyMan :: Ninja -> Bool
