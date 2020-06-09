@@ -196,10 +196,14 @@ getNinjaNames ninjas = [name n | n <- ninjas]
 isJourneyMan :: Ninja -> Bool
 isJourneyMan ninja = (r ninja) >= 3
 
+-- Higher order function that takes comparator as input
+journeymanComparator :: (Ninja -> Bool) -> [Ninja] -> Bool
+journeymanComparator comparator [] = False
+journeymanComparator comparator ninjas = any comparator ninjas
+
 -- Checks if the list of ninjas have a journeyman in them
 checkJourneyman :: [Ninja] -> Bool
-checkJourneyman [] = False
-checkJourneyman ninjas = any isJourneyMan ninjas
+checkJourneyman  = journeymanComparator isJourneyMan
 
 -- Gets current status of a ninja
 getStatus :: Int -> String
