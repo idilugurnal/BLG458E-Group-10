@@ -156,6 +156,18 @@ viewAllCountries catalogue = do
     putStrLn $ unlines $ filter (not . null) $ map (viewCountryFightStatus catalogue) ["f", "e", "l", "n", "w"]
     return ()
 
+filterJourneymen :: [Ninja] -> [Ninja]
+filterJourneymen ninjas
+    | null ninjas = []
+    | (status $ head ninjas) == "Journeyman" = (head ninjas) : (filterJourneymen (tail ninjas))  
+    | otherwise = filterJourneymen (tail ninjas)
+
+getJourneymen :: NinjaCatalogue -> [Ninja]
+getJourneymen = quickSort . filterJourneymen . getAllNinjas
+
+viewJourneymen :: NinjaCatalogue -> IO ()
+viewJourneymen  = putStrLn . vievNinjaList . getJourneymen
+
 viewCountryFightStatus :: NinjaCatalogue -> String -> String
 viewCountryFightStatus catalogue country
     | (checkJourneyman $ getCountryNinjas catalogue country) = countryName ++ " country cannot be included in a fight"
@@ -490,7 +502,6 @@ rootPrompt catalogue  = do
                                     let result  = makeRoundBetweenNinjas catalogue ninja1 ninja2
                                     putStrLn $ getEndOfRoundMessage (fst result)
                                     rootPrompt (snd result)
-                                    return()
                             else do 
                                 putStrLn "There is already a Journeyman in the second country. Please try again!\n"
                                 rootPrompt catalogue
@@ -505,11 +516,16 @@ rootPrompt catalogue  = do
                     rootPrompt catalogue
             else putStr ""            
         
-    if (s == "e" || s == "d" || s == "c") 
-        then return ()
-        else do
-            rootPrompt catalogue
+    if (s == "e") 
+        then do
+            viewJourneymen catalogue
             return ()
+        else do
+            if (s == "c" || s == "d" )
+                then return ()
+                else do 
+                    rootPrompt catalogue
+                    return ()
     
     return ()
 
